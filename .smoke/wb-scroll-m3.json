@@ -1,1 +1,0 @@
-{"action":"evaluate","args":{"code":"(()=>{document.querySelector('#m3').scrollIntoView({block:'start'});return 'ok';})()"},"session":"monitor-salud-review"}

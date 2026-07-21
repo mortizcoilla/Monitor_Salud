@@ -1,1 +1,0 @@
-{"action":"evaluate","args":{"code":"(()=>{document.querySelector('#analitica').scrollIntoView({block:'start'});return 'ok';})()"},"session":"monitor-salud-review"}

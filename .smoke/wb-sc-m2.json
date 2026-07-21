@@ -1,1 +1,0 @@
-{"action":"evaluate","args":{"code":"(()=>{document.querySelector('#chart-m2-2').scrollIntoView({block:'center',behavior:'instant'});return 'ok';})()"},"session":"monitor-salud-review"}

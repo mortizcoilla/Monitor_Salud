@@ -5,6 +5,8 @@
 **Cobertura temporal de los datos:** 2010–2026 según indicador
 **Regla de evidencia:** todas las cifras de este informe provienen de la verificación de fuentes primarias documentada en `fuentes/M1_M5_financiamiento.md`, `fuentes/M2_M3_aseguramiento_listas.md` y `fuentes/M4_M6_M7_carga_capital_demografia.md`. Cada indicador declara su definición, universo e instrumento. Los datos no verificados se declaran explícitamente como **NO VERIFICADO**; no se rellena con conocimiento externo.
 
+> **Nota de nomenclatura (jul-2026):** el «Índice de Presión Sanitaria (IPS)» que este informe propone se publica en el dashboard bajo el nombre **Termómetro de la Salud**, renombrado para evitar confusión con el Instituto de Previsión Social. Este documento conserva la denominación original por su valor de registro; la especificación vigente y simplificada (5 componentes) está en `README.md` y `js/core.js`.
+
 ---
 
 # Resumen ejecutivo

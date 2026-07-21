@@ -3,12 +3,15 @@
  * @description
  *   Expone window.MSS.core con:
  *     - PALETTE / NIVELES (constantes de diseño)
- *     - Motor del Índice de Presión Sanitaria (IPS): normalización min-max,
- *       ponderaciones documentadas y contribución por componente.
+ *     - Motor del «Termómetro de la Salud» (índice compuesto 0-100; antes
+ *       «Índice de Presión Sanitaria — IPS», renombrado para evitar confusión
+ *       con el Instituto de Previsión Social). Los identificadores internos
+ *       (IPS_SPEC, calcularIPS, IPS_INPUTS, ids ips-*) conservan su nombre
+ *       histórico; el nombre público nuevo se aplica en todos los textos.
  *     - Helpers D3 genéricos (barras V/H, agrupadas, apiladas, líneas, dona,
  *       leyendas, tooltip, títulos de ejes, líneas de referencia con píldora)
  *       usados por modules.js y analytics.js.
- *     - renderPortada(): scorecard del IPS.
+ *     - renderPortada(): scorecard del Termómetro.
  *
  *   API pública: window.MSS.core
  *   Dependencias: window.MSS.DATA (data.js), d3 v7 (vendorizado en js/vendor/).
@@ -562,7 +565,7 @@
     var marker = document.createElement('div');
     marker.className = 'ips-marker';
     marker.style.left = Math.min(100, Math.max(0, actual.score)) + '%';
-    marker.setAttribute('aria-label', 'IPS actual ' + fmtDec(actual.score, 1));
+    marker.setAttribute('aria-label', 'Termómetro actual ' + fmtDec(actual.score, 1));
     bar.appendChild(marker);
 
     // Escala textual bajo la barra
@@ -613,7 +616,7 @@
         label: 'IPS', color: PALETTE.blueDark,
         puntos: serie.map(function (p) { return { x: p.periodo, v: Math.round(p.score * 10) / 10 }; })
       }], {
-        max: 100, min: 0, unidad: ' pts', yLabel: 'IPS (0-100)',
+        max: 100, min: 0, unidad: ' pts', yLabel: 'Termómetro (0-100)',
         pointLabels: 'all', fmtVal: function (v) { return fmtDec(v, 1); },
         margins: { top: 20, right: 14, bottom: 30, left: 36 }
       });

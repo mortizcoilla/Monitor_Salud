@@ -17,7 +17,7 @@ LinkedIn: [completar] · Email: [completar] · WhatsApp: [completar]
 1. [Cómo servirlo localmente](#cómo-servirlo-localmente)
 2. [Stack técnico](#stack-técnico)
 3. [Estructura del proyecto](#estructura-del-proyecto)
-4. [Metodología del IPS](#metodología-del-ips)
+4. [Metodología del Termómetro](#metodología-del-termómetro)
 5. [Módulos del monitor](#módulos-del-monitor)
 6. [Filtros globales](#filtros-globales)
 7. [Trazabilidad de fuentes](#trazabilidad-de-fuentes)
@@ -45,11 +45,11 @@ No requiere build ni `npm install`. Tres formas:
 
 ```
 dashboard/
-├── index.html          # Estructura: sidebar, portada IPS, M1-M7, analítica, metodología
+├── index.html          # Estructura: sidebar, portada Termómetro, M1-M7, analítica, metodología
 ├── css/styles.css      # Variables, layout responsive (desktop/tablet/mobile), badges, drawer
 ├── js/
 │   ├── data.js         # MSS.DATA: todas las cifras verificadas + catálogo de fuentes
-│   ├── core.js         # MSS.core: paleta, niveles, motor IPS, helpers D3, portada
+│   ├── core.js         # MSS.core: paleta, niveles, motor del Termómetro, helpers D3, portada
 │   ├── modules.js      # MSS.modules: charts de los 7 módulos temáticos
 │   ├── analytics.js    # MSS.analytics: territorio, panel longitudinal, subgrupos
 │   ├── filters.js      # MSS.filters: FILTROS_ADJUST, estado, chips, deep linking
@@ -59,11 +59,12 @@ dashboard/
 └── .gitignore
 ```
 
-## Metodología del IPS
+## Metodología del Termómetro
 
-El **Índice de Presión Sanitaria (IPS)** es un índice compuesto 0-100 calculado en `js/core.js` (`MSS.core.calcularIPS`).
+El **Termómetro de la Salud** (antes «Índice de Presión Sanitaria — IPS», renombrado para evitar confusión
+con el Instituto de Previsión Social) es un índice compuesto 0-100 calculado en `js/core.js` (`MSS.core.calcularIPS`).
 
-**Fórmula:** `IPS = Σ wᵢ · normᵢ(xᵢ)`, con `norm(x) = 100·(x − min)/(max − min)` acotada a [0,100] (min-max).
+**Fórmula:** `Termómetro = Σ wᵢ · normᵢ(xᵢ)`, con `norm(x) = 100·(x − min)/(max − min)` acotada a [0,100] (min-max).
 
 | Componente | Peso | Límites [min, max] | Dato verificado (dic-2025) |
 |---|---|---|---|
@@ -79,13 +80,13 @@ El **Índice de Presión Sanitaria (IPS)** es un índice compuesto 0-100 calcula
 
 **Serie histórica:** 2021, dic-2023, dic-2024 y dic-2025. Parte en **2021** porque no existe mediana CNE 2019 publicada (se descartó el punto inicial 2019 del brief por falta de dato). Los componentes estructurales (capacidad, multimorbilidad) se mantienen constantes y el OOP 2024-2025 repite el dato 2023 — todo declarado en el pie de la portada.
 
-**Recálculo:** editar `MSS.DATA.IPS_INPUTS` en `js/data.js` con un nuevo corte; la portada y la serie se actualizan solas al recargar.
+**Recálculo:** editar `MSS.DATA.IPS_INPUTS` en `js/data.js` con un nuevo corte (la clave interna conserva su nombre histórico); la portada y la serie se actualizan solas al recargar.
 
 ## Módulos del monitor
 
 | # | Módulo | Contenido |
 |---|---|---|
-| Portada | Índice de Presión Sanitaria | Scorecard (número 72px, nivel, barra de 5 zonas con marcador), 3 comparaciones, composición y serie del índice |
+| Portada | Termómetro de la Salud | Scorecard (número 72px, nivel, barra de 5 zonas con marcador), 3 comparaciones, composición y serie del índice |
 | M1 | Financiamiento y gasto | CHE % PIB 2010-2023, descomposición público/privado, comparativa de países 2023, presupuesto MINSAL 2019-2026 |
 | M2 | Aseguramiento y segmentación | Previsión CASEN 2017-2024, deciles de ingreso, beneficiarios isapre, tramos FONASA |
 | M3 | Listas de espera | Medianas CNE/IQ 2021-2025, volumen de registros, GES retrasadas, fallecidos en lista (con advertencia de no-causalidad) |
@@ -125,7 +126,7 @@ Toda cifra del tablero proviene de los archivos de verificación `fuentes/M1_M5_
 
 ## Limitaciones declaradas
 
-1. **IPS:** ponderaciones y límites de normalización son decisiones de diseño; componentes estructurales constantes en la serie; OOP 2024-2025 = dato 2023; la serie parte en 2021 (sin mediana CNE 2019).
+1. **Termómetro:** ponderaciones y límites de normalización son decisiones de diseño; componentes estructurales constantes en la serie; OOP 2024-2025 = dato 2023; la serie parte en 2021 (sin mediana CNE 2019).
 2. **Clustering de Servicios de Salud no factible:** solo hay conteos (14/29 SS <200 días CNE; 7 en IQ) y 7 medianas IQ publicadas; se muestra el ranking disponible en su lugar.
 3. **Fallecidos en lista:** el propio MINSAL advierte que no permite establecer causalidad espera → muerte; la advertencia acompaña el gráfico.
 4. **Médicos Chile (3,3/1.000) = con licencia** vs OCDE en ejercicio: la brecha real es mayor que la graficada.

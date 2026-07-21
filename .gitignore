@@ -16,3 +16,4 @@ desktop.ini
 # Logs y temporales
 *.log
 tmp/
+.smoke/
