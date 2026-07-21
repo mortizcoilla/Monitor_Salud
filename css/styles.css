@@ -1,0 +1,367 @@
+/* ==========================================================================
+   styles.css — Monitor Socioeconómico de la Salud en Chile (MSS)
+   CSS vanilla: variables, grid, flexbox. Convención BEM-like (.mss-card,
+   .mss-card-main, .is-active). Sin preprocesador.
+   ========================================================================== */
+
+:root {
+  /* Azules institucionales */
+  --azul-oscuro: #0e3a5d;
+  --azul: #2f6f9f;
+  --azul-claro: #8fb8d4;
+  --azul-palido: #dbe8f1;
+  --tinta: #1d2b36;
+  --gris: #5b6b7a;
+  --gris-borde: #d8e0e8;
+  --fondo: #f4f6f8;
+  --fondo-card: #ffffff;
+  /* Alertas */
+  --verde: #2e7d52;
+  --ambar: #c98a1b;
+  --rojo: #b23a3a;
+  /* Niveles IPS */
+  --ips-bajo: #2e7d52;
+  --ips-moderado: #8aa84f;
+  --ips-elevado: #d9a13b;
+  --ips-alto: #c25e2e;
+  --ips-critico: #a52f2f;
+  /* Layout */
+  --sidebar-w: 264px;
+  --sidebar-w-mid: 216px;
+  --radius: 10px;
+  --sombra: 0 1px 3px rgba(14, 58, 93, .08), 0 4px 14px rgba(14, 58, 93, .06);
+  --fuente: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--tinta);
+  background: var(--fondo);
+}
+
+/* Foco visible */
+a:focus-visible, button:focus-visible, select:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute; left: -999px; top: 0;
+  background: var(--azul-oscuro); color: #fff; padding: 10px 16px; z-index: 200;
+}
+.skip-link:focus { left: 8px; top: 8px; }
+
+/* ===================== Topbar (móvil) ===================== */
+.mss-topbar {
+  display: none;
+  position: sticky; top: 0; z-index: 90;
+  align-items: center; gap: 12px;
+  background: var(--azul-oscuro); color: #fff;
+  padding: 8px 12px;
+}
+.mss-menu-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-width: 44px; min-height: 44px;
+  background: transparent; color: #fff;
+  border: 1px solid rgba(255, 255, 255, .4); border-radius: 8px;
+  font: 600 14px var(--fuente); cursor: pointer; padding: 8px 12px;
+}
+.mss-topbar-brand { font-weight: 600; font-size: 13px; }
+
+/* ===================== Layout ===================== */
+.mss-layout { display: flex; align-items: flex-start; }
+
+/* ===================== Sidebar ===================== */
+.mss-sidebar {
+  position: sticky; top: 0;
+  width: var(--sidebar-w); flex: 0 0 var(--sidebar-w);
+  height: 100vh; overflow-y: auto;
+  background: var(--fondo-card);
+  border-right: 1px solid var(--gris-borde);
+  padding: 20px 16px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.mss-sidebar-head { display: flex; align-items: flex-start; justify-content: space-between; }
+.mss-brand {
+  margin: 0; font-size: 22px; font-weight: 800; color: var(--azul-oscuro); line-height: 1.1;
+}
+.mss-brand span { display: block; font-size: 11px; font-weight: 500; color: var(--gris); margin-top: 4px; }
+.mss-drawer-close {
+  display: none;
+  min-width: 44px; min-height: 44px;
+  font-size: 26px; line-height: 1;
+  background: none; border: none; color: var(--gris); cursor: pointer;
+}
+
+.mss-nav { display: flex; flex-direction: column; gap: 2px; }
+.mss-nav a {
+  display: block; padding: 8px 10px; border-radius: 7px;
+  color: var(--tinta); text-decoration: none; font-size: 13px; font-weight: 500;
+  border-left: 3px solid transparent;
+}
+.mss-nav a:hover { background: var(--azul-palido); }
+.mss-nav a.is-active { border-left-color: var(--azul-oscuro); background: var(--azul-palido); color: var(--azul-oscuro); }
+
+/* ===================== Filtros ===================== */
+.mss-filters { border-top: 1px solid var(--gris-borde); padding-top: 16px; }
+.mss-filters h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--gris); margin: 0 0 10px; }
+.mss-filter-field { margin-bottom: 10px; }
+.mss-filter-field label { display: block; font-size: 11.5px; font-weight: 600; color: var(--gris); margin-bottom: 4px; }
+.mss-filter-field select {
+  width: 100%; padding: 8px 10px; font: 500 13px var(--fuente);
+  color: var(--tinta); background: #fff;
+  border: 1px solid var(--gris-borde); border-radius: 7px;
+}
+.mss-btn-clear {
+  width: 100%; padding: 9px; margin-top: 4px;
+  font: 600 13px var(--fuente);
+  color: #fff; background: var(--azul-oscuro);
+  border: none; border-radius: 7px; cursor: pointer;
+}
+.mss-btn-clear:disabled { background: var(--gris-borde); color: var(--gris); cursor: not-allowed; }
+.mss-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.mss-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; padding: 4px 8px;
+  background: var(--azul-palido); color: var(--azul-oscuro);
+  border-radius: 999px;
+}
+.mss-chip-empty { background: var(--fondo); color: var(--gris); }
+.chip-x {
+  border: none; background: none; cursor: pointer;
+  color: var(--azul-oscuro); font-size: 14px; font-weight: 700;
+  padding: 0 2px; line-height: 1;
+}
+.mss-filters-note { font-size: 11px; color: var(--gris); margin-top: 12px; }
+
+/* ===================== Main ===================== */
+.mss-main {
+  flex: 1 1 auto; min-width: 0;
+  padding: 28px 32px 48px;
+  max-width: 1240px;
+}
+
+.eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--azul); margin: 0 0 6px;
+}
+.lede { font-size: 14px; color: var(--gris); max-width: 72ch; }
+
+/* ===================== Portada / IPS ===================== */
+.mss-portada h1 { font-size: 30px; margin: 0 0 8px; color: var(--azul-oscuro); }
+.ips-grid {
+  display: grid; gap: 16px; margin-top: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mss-card {
+  background: var(--fondo-card);
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  padding: 18px 20px;
+}
+.mss-card-title { font-size: 15px; margin: 0 0 12px; color: var(--azul-oscuro); }
+
+.ips-score { text-align: center; }
+.ips-number { font-size: 72px; font-weight: 800; line-height: 1; margin: 6px 0 10px; }
+.ips-level {
+  display: inline-block; margin: 0 0 16px;
+  font-size: 13px; font-weight: 700; color: #fff;
+  padding: 4px 14px; border-radius: 999px;
+}
+.ips-bar {
+  position: relative; height: 22px; border-radius: 999px; overflow: visible;
+  margin: 4px 0 10px;
+}
+.ips-zone { position: absolute; top: 0; height: 100%; }
+.ips-zone:first-child { border-radius: 999px 0 0 999px; }
+.ips-zone:nth-child(5) { border-radius: 0 999px 999px 0; }
+.ips-marker {
+  position: absolute; top: -6px; width: 4px; height: 34px;
+  background: var(--tinta); border-radius: 2px;
+  transform: translateX(-2px);
+  box-shadow: 0 0 0 2px #fff;
+}
+.ips-scale {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 8px 14px;
+  justify-content: center; padding: 0; margin: 8px 0 0;
+  font-size: 11.5px; color: var(--gris);
+}
+.ips-scale .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+.ips-scale .rng { color: var(--tinta); font-weight: 600; }
+
+.ips-comp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.ips-comp-list li { display: flex; gap: 12px; align-items: flex-start; }
+.ips-comp-num {
+  flex: 0 0 62px; font-size: 22px; font-weight: 800; text-align: right;
+}
+.ips-comp-num.up { color: var(--rojo); }
+.ips-comp-num.down { color: var(--verde); }
+.ips-comp-num.neutral { color: var(--azul-oscuro); }
+.ips-comp-txt { font-size: 13px; color: var(--gris); }
+.ips-comp-txt strong { color: var(--tinta); }
+
+.ips-comp-row { margin-bottom: 12px; }
+.ips-comp-head { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
+.ips-comp-head em { color: var(--gris); font-style: normal; font-weight: 500; }
+.ips-comp-track { height: 10px; background: var(--fondo); border-radius: 999px; overflow: hidden; }
+.ips-comp-fill { height: 100%; border-radius: 999px; }
+.ips-comp-sub { font-size: 11px; color: var(--gris); margin-top: 3px; }
+
+/* ===================== Módulos ===================== */
+.mss-module { margin-top: 44px; }
+.module-head { border-bottom: 2px solid var(--azul-oscuro); padding-bottom: 10px; margin-bottom: 16px; }
+.module-head h2 { font-size: 24px; margin: 0 0 6px; color: var(--azul-oscuro); }
+.source-tag {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  color: var(--azul-oscuro); background: var(--azul-palido);
+  padding: 3px 10px; border-radius: 999px;
+}
+
+.stat-strip {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px; margin-bottom: 16px;
+}
+.stat {
+  background: var(--fondo-card); border: 1px solid var(--gris-borde);
+  border-radius: var(--radius); padding: 12px 14px;
+}
+.stat strong { display: block; font-size: 20px; color: var(--azul-oscuro); line-height: 1.2; }
+.stat span { font-size: 11.5px; color: var(--gris); }
+.stat-strip-inline { margin-top: 4px; }
+
+/* ===================== Charts ===================== */
+.mss-chart-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.chart-card {
+  position: relative;
+  background: var(--fondo-card);
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  padding: 16px 18px 14px;
+}
+.chart-card-wide { grid-column: 1 / -1; }
+.chart-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--azul); margin: 0 0 4px;
+}
+.chart-title { font-size: 15.5px; margin: 0 26px 10px 0; color: var(--tinta); }
+.chart-body svg { width: 100%; height: auto; min-height: 220px; display: block; }
+.chart-body-short svg { min-height: 180px; }
+.chart-foot {
+  font-size: 11px; color: var(--gris); line-height: 1.5;
+  border-top: 1px dashed var(--gris-borde);
+  margin: 10px 0 0; padding-top: 8px;
+}
+
+/* Badges de ajustabilidad */
+.chart-card-filterable::after,
+.chart-card-static::before {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 10.5px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px; pointer-events: none;
+}
+.chart-card-filterable::after {
+  content: 'Ajusta con filtros';
+  color: #fff; background: var(--azul);
+}
+.chart-card-static::before {
+  content: 'Dato macro · no ajustable';
+  color: var(--gris); background: var(--fondo);
+  border: 1px solid var(--gris-borde);
+}
+
+/* Tooltip D3 */
+.mss-tooltip {
+  position: absolute; z-index: 300; pointer-events: none;
+  background: var(--azul-oscuro); color: #fff;
+  font-size: 12px; line-height: 1.45;
+  padding: 8px 10px; border-radius: 7px;
+  max-width: 260px; box-shadow: 0 4px 14px rgba(0, 0, 0, .25);
+  transition: opacity .12s ease;
+}
+
+/* Nota de error por módulo fallido */
+.mss-error-note {
+  background: #fbeaea; color: var(--rojo);
+  border: 1px solid #ecc5c5; border-radius: 8px;
+  padding: 10px 14px; font-size: 12.5px;
+}
+
+.metodologia p { font-size: 13.5px; margin: 0 0 10px; }
+.metodologia code { background: var(--fondo); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+.mss-footer {
+  margin-top: 48px; padding-top: 16px;
+  border-top: 1px solid var(--gris-borde);
+  font-size: 12px; color: var(--gris);
+}
+
+/* ==========================================================================
+   Tablet (900-1100px): sidebar más estrecha
+   ========================================================================== */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .mss-sidebar { width: var(--sidebar-w-mid); flex-basis: var(--sidebar-w-mid); }
+  .mss-main { padding: 24px 20px 40px; }
+  .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ==========================================================================
+   Mobile (≤900px): drawer + cards apiladas
+   ========================================================================== */
+@media (max-width: 900px) {
+  .mss-topbar { display: flex; }
+
+  .mss-sidebar {
+    position: fixed; top: 0; left: 0; z-index: 120;
+    width: min(320px, 86vw); height: 100vh;
+    transform: translateX(-105%);
+    transition: transform .22s ease;
+    box-shadow: 4px 0 24px rgba(14, 58, 93, .25);
+  }
+  .mss-sidebar.is-open { transform: translateX(0); }
+  .mss-drawer-close { display: block; }
+  .mss-overlay {
+    position: fixed; inset: 0; z-index: 110;
+    background: rgba(14, 28, 40, .45);
+  }
+  body.drawer-open { overflow: hidden; }
+
+  .mss-main { padding: 20px 14px 40px; }
+
+  /* La portada es lo primero visible sin scroll */
+  .mss-portada h1 { font-size: 24px; }
+  .ips-number { font-size: 60px; }
+
+  .ips-grid { grid-template-columns: 1fr; }
+  .mss-chart-grid { grid-template-columns: 1fr; }
+  .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .chart-body svg { min-height: 220px; }
+
+  /* Badges pasan a position: static para no superponer el título */
+  .chart-card-filterable::after,
+  .chart-card-static::before {
+    position: static; display: inline-block;
+    margin: 0 0 8px;
+  }
+  .chart-title { margin-right: 0; }
+
+  .module-head h2 { font-size: 20px; }
+}
