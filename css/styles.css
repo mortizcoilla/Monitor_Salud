@@ -390,14 +390,6 @@ a:focus-visible, button:focus-visible, select:focus-visible {
   margin: 0; font-family: Georgia, 'Times New Roman', serif;
   font-size: 15px; color: var(--tinta);
 }
-.footer-banner-btn {
-  flex: none; display: inline-flex; align-items: center; gap: 8px;
-  background: var(--azul-oscuro); color: #fff; text-decoration: none;
-  font-family: Georgia, 'Times New Roman', serif; font-size: 14.5px;
-  padding: 10px 18px; transition: background .15s ease;
-}
-.footer-banner-btn:hover { background: var(--azul); }
-
 /* Doble regla separadora */
 .footer-rule {
   margin: 36px 0 30px; height: 6px;
