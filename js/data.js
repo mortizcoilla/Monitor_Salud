@@ -314,7 +314,13 @@
         { anio: 2019, v: 100.0 }, { anio: 2021, v: 79.0 }, { anio: 2022, v: 84.7 },
         { anio: 2023, v: 91.3 }, { anio: 2024, v: 92.2 }, { anio: 2025, v: 94.0 }
       ],
-      especialistas: { chile: 1.73 } // por 1.000 hab., 5° más bajo OCDE. Fuente: CLINICAS (citando OCDE).
+      especialistas: { chile: 1.73 }, // por 1.000 hab., 5° más bajo OCDE. Fuente: CLINICAS (citando OCDE).
+      // Personas atendidas por sector con ~la mitad de los médicos cada uno.
+      // Fuente: INDH — Informe Anual 2016 (con datos MINSAL). Dato antiguo, sin actualización oficial reciente.
+      medicosSectores: [
+        { sector: 'Privado', personas: 2.0 },
+        { sector: 'Público', personas: 15.0 }
+      ]
     },
 
     /* ------------------------------------------------------------------ *

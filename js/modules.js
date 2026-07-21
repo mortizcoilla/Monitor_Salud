@@ -333,6 +333,16 @@
       lineaRef: { v: 100, label: 'Nivel pre-pandemia (100)' },
       margins: { top: 28, right: 16, bottom: 30, left: 44 }
     });
+
+    // M6.4 Personas atendidas por sector con la mitad de los médicos (INDH 2016)
+    c.barV('chart-m6-4',
+      d.medicosSectores.map(function (r) { return { k: r.sector, v: r.personas }; }),
+      {
+        unidad: ' millones de personas atendidas', max: 18, yLabel: 'millones de personas',
+        colorFn: function (dd) { return dd.k === 'Privado' ? p.amber : p.blueDark; },
+        fmtVal: function (v) { return c.fmtDec(v, 1) + ' M'; },
+        margins: { top: 24, right: 14, bottom: 30, left: 44 }
+      });
   }
 
   /* ==================================================================== */
