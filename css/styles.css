@@ -368,6 +368,40 @@ a:focus-visible, button:focus-visible, select:focus-visible {
 
 
 /* ==========================================================================
+   Lectura clave — bloque editorial al final de cada módulo
+   ========================================================================== */
+.mss-takeaway {
+  margin-top: 18px;
+  padding: 14px 20px 14px 22px;
+  background: rgba(14, 58, 93, .045);
+  border-left: 3px solid var(--azul-oscuro);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.mss-takeaway-eyebrow {
+  margin: 0 0 6px;
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--azul-oscuro);
+}
+.mss-takeaway-lead {
+  margin: 0 0 6px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15.5px; font-weight: 600;
+  color: var(--tinta); line-height: 1.35;
+}
+.mss-takeaway-body {
+  margin: 0;
+  font-size: 13px; line-height: 1.6;
+  color: var(--gris);
+}
+.mss-takeaway-body strong { color: var(--tinta); font-weight: 600; }
+.mss-takeaway-body em { color: var(--gris); font-style: italic; font-size: 12px; }
+@media (max-width: 720px) {
+  .mss-takeaway { padding: 12px 14px; }
+  .mss-takeaway-lead { font-size: 14.5px; }
+}
+
+/* ==========================================================================
    Autor y créditos
    ========================================================================== */
 /* Footer editorial (inspirado en el Atlas del autor): banner, firma serif,
