@@ -113,7 +113,7 @@
           </div>
           <div class="mss-card ips-comparisons" id="ips-comparisons"></div>
           <div class="mss-card">
-            <h3 class="mss-card-title">Composición del índice (puntos aportados)</h3>
+            <h3 class="mss-card-title">Composición del índice (puntos aportados — mayor = más presión)</h3>
             <div id="ips-composition"></div>
           </div>
           <div class="mss-card">
@@ -121,9 +121,9 @@
             <div id="ips-serie" class="chart-body chart-body-short">
               <svg id="ips-serie-svg" viewBox="0 0 640 220" role="img" aria-label="Serie histórica del Termómetro de la Salud 2021 a 2025"></svg>
             </div>
-            <p class="chart-foot">Metodología propia del monitor: normalización min-max de 5 componentes con datos verificados
+            <p class="chart-foot"><strong>Mayor = más presión sobre el sistema (0 a 100).</strong> Metodología propia del monitor: normalización min-max de 5 componentes con datos verificados
               (ver sección Metodología y README). La serie parte en 2021, primer año con los tres componentes dinámicos disponibles;
-              no existe mediana CNE 2019 publicada.</p>
+              no existe mediana CNE 2019 publicada. El informe académico (<code>informe/informe_monitor_salud_chile.md §B</code>) publica una versión de 8 componentes con valor 60,7 (nivel ALTO): es una métrica distinta, no intercambiable con este Termómetro.</p>
           </div>
         </div>
 
@@ -516,12 +516,18 @@
           <p><strong>Fórmula:</strong> Termómetro = Σ wᵢ · normᵢ(xᵢ), escala 0-100. Normalización min-max acotada con límites
             anclados a referencias verificadas. Ponderaciones: mediana CNE 0,25 · GES retrasadas 0,20 · gasto de
             bolsillo 0,20 · brecha de capacidad vs OCDE 0,20 · multimorbilidad 0,15.</p>
-          <p><strong>Niveles:</strong> Bajo &lt;20 · Moderado 20-39 · Elevado 40-59 · Alto 60-79 · Crítico ≥80.</p>
+          <p><strong>Niveles:</strong> Bajo &lt;20 · Moderado 20-39 · Elevado 40-59 · Alto 60-79 · Crítico ≥80.
+            <strong>Mayor = más presión sobre el sistema</strong> (no es una escala de "bienestar").</p>
           <p><strong>Limitaciones:</strong> componentes estructurales (capacidad, multimorbilidad) constantes en la serie;
             OOP 2024-2025 usa el último dato disponible (2023); la serie parte en 2021 por falta de mediana CNE 2019.
             Las ponderaciones y límites son decisiones de diseño del monitor, no datos oficiales; los insumos sí lo son.
             El Termómetro puede recalcularse con nuevos cortes editando <code>IPS_INPUTS</code> en <code>js/data.js</code>
             (la clave interna conserva su nombre histórico).</p>
+          <p><strong>Nota sobre el IPS académico:</strong> el informe <code>informe/informe_monitor_salud_chile.md §B</code>
+            publica una versión del IPS de <strong>8 componentes</strong> con valor 60,7 (nivel ALTO). Es una métrica
+            distinta, no intercambiable con este Termómetro de 5 componentes. El dashboard usa la versión simplificada
+            porque es la que puede actualizarse trimestralmente con la Glosa 06; la de 8 requiere CASEN, OMS y ENCAVI
+            anuales.</p>
         </div>
       </section>
 

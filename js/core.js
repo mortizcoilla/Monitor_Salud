@@ -112,6 +112,21 @@
   }
 
   /**
+   * Brecha de capacidad vs OCDE, calculada en runtime desde M6.dotacion.
+   * Promedio simple de (1 - chile/ocde) para enfermeras y camas, en %.
+   * Se calcula acá (no en data.js) para que cualquier actualización de M6.dotacion
+   * se refleje automáticamente en el Termómetro.
+   * @returns {number} % brecha en [0, 100]
+   */
+  function gapCapitalFromDotacion() {
+    if (!D || !D.M6 || !Array.isArray(D.M6.dotacion)) return 0;
+    var enf = D.M6.dotacion.find(function (r) { return r.ind === 'Enfermeras'; });
+    var cam = D.M6.dotacion.find(function (r) { return r.ind.indexOf('Camas') === 0; });
+    if (!enf || !cam || !enf.ocde || !cam.ocde) return 0;
+    return ((1 - enf.chile / enf.ocde) + (1 - cam.chile / cam.ocde)) / 2 * 100;
+  }
+
+  /**
    * Calcula el IPS para un periodo.
    * @param {string} periodo Clave de MSS.DATA.IPS_INPUTS.dinamicos (ej. 'dic-2025').
    * @returns {{score:number, nivel:object, contribuciones:Array, periodo:string}}
@@ -123,7 +138,7 @@
     var est = D.IPS_INPUTS.estructurales;
     var valores = {
       cne: din.cne, ges: din.ges, oop: din.oop,
-      capital: est.gapCapital, cronicas: est.multimorbilidad
+      capital: gapCapitalFromDotacion(), cronicas: est.multimorbilidad
     };
     var score = 0;
     var contribuciones = IPS_SPEC.componentes.map(function (c) {
@@ -589,7 +604,7 @@
       '<li><span class="ips-comp-num ' + (dAnterior <= 0 ? 'down' : 'up') + '">' + (dAnterior >= 0 ? '+' : '−') + fmtDec(Math.abs(dAnterior), 1) + '</span>' +
       '<span class="ips-comp-txt">puntos vs. periodo anterior (<strong>dic-2024</strong>, ' + fmtDec(anterior.score, 1) + '): bajan las medianas de espera y suben las garantías GES retrasadas.</span></li>' +
       '<li><span class="ips-comp-num neutral">' + fmtDec(dominante.pctDelIndice, 0) + '%</span>' +
-      '<span class="ips-comp-txt">del puntaje lo explica <strong>' + dominante.label.toLowerCase() + '</strong> (' + fmtMiles(dominante.bruto) + ' ' + dominante.unidad + '), el componente dominante del índice.</span></li>' +
+      '<span class="ips-comp-txt">del puntaje corresponde a <strong>' + dominante.label.toLowerCase() + '</strong> (' + fmtMiles(dominante.bruto) + ' ' + dominante.unidad + '): el componente de mayor aporte al Termómetro.</span></li>' +
       '</ul>';
 
     // Composición (barras de contribución)
@@ -616,7 +631,7 @@
         label: 'IPS', color: PALETTE.blueDark,
         puntos: serie.map(function (p) { return { x: p.periodo, v: Math.round(p.score * 10) / 10 }; })
       }], {
-        max: 100, min: 0, unidad: ' pts', yLabel: 'Termómetro (0-100)',
+        max: 100, min: 0, unidad: ' pts', yLabel: 'Termómetro (0 = baja presión, 100 = alta)',
         pointLabels: 'all', fmtVal: function (v) { return fmtDec(v, 1); },
         margins: { top: 20, right: 14, bottom: 30, left: 36 }
       });

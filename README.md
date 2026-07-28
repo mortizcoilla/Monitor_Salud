@@ -126,7 +126,7 @@ Toda cifra del tablero proviene de los archivos de verificación `fuentes/M1_M5_
 
 ## Limitaciones declaradas
 
-1. **Termómetro:** ponderaciones y límites de normalización son decisiones de diseño; componentes estructurales constantes en la serie; OOP 2024-2025 = dato 2023; la serie parte en 2021 (sin mediana CNE 2019).
+1. **Termómetro:** ponderaciones y límites de normalización son decisiones de diseño; componentes estructurales constantes en la serie; OOP 2024-2025 = dato 2023; la serie parte en 2021 (sin mediana CNE 2019). El dashboard publica la versión de **5 componentes** con valor 57,3 (nivel Elevado); el `informe/informe_monitor_salud_chile.md §B` propone una versión académica de **8 componentes** con valor 60,7 (nivel ALTO) — son métricas distintas, no intercambiables. La escala va de 0 a 100, donde mayor = más presión sobre el sistema (no es una escala de bienestar).
 2. **Clustering de Servicios de Salud no factible:** solo hay conteos (14/29 SS <200 días CNE; 7 en IQ) y 7 medianas IQ publicadas; se muestra el ranking disponible en su lugar.
 3. **Fallecidos en lista:** el propio MINSAL advierte que no permite establecer causalidad espera → muerte; la advertencia acompaña el gráfico.
 4. **Médicos Chile (3,3/1.000) = con licencia** vs OCDE en ejercicio: la brecha real es mayor que la graficada.

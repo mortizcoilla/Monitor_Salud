@@ -372,8 +372,8 @@
       },
       // Componentes estructurales (constantes en la serie)
       estructurales: {
-        // Brecha % vs promedio OCDE: promedio simple de enfermeras (4,4 vs 9,2) y camas (1,9 vs 4,2)
-        gapCapital: ((1 - 4.4 / 9.2) + (1 - 1.9 / 4.2)) / 2 * 100,
+        // gapCapital NO se hardcodea: se calcula en runtime desde M6.dotacion
+        // en core.js (gapCapitalFromDotacion) para evitar desincronización.
         multimorbilidad: 40.1
       }
     }
