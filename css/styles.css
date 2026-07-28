@@ -200,6 +200,11 @@ a:focus-visible, button:focus-visible, select:focus-visible {
   justify-content: center; padding: 0; margin: 8px 0 0;
   font-size: 11.5px; color: var(--gris);
 }
+.ips-direction {
+  margin: -6px 0 12px;
+  text-align: center;
+  font-size: 11.5px; font-style: italic; color: var(--gris);
+}
 .ips-scale .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
 .ips-scale .rng { color: var(--tinta); font-weight: 600; }
 
