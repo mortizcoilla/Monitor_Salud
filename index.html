@@ -56,6 +56,8 @@
         <a href="#m6">M6 · Capital humano</a>
         <a href="#m7">M7 · Demografía</a>
         <a href="#analitica">Capa analítica</a>
+        <a href="#omisiones">Omisiones declaradas</a>
+        <a href="#glosario">Glosario</a>
         <a href="#metodologia">Metodología</a>
       </nav>
 
@@ -110,11 +112,16 @@
             <p class="ips-direction">Mayor = más presión sobre el sistema (0 a 100)</p>
             <div class="ips-bar" id="ips-bar" role="img" aria-label="Barra de niveles del Termómetro con marcador del valor actual"></div>
             <ul class="ips-scale" id="ips-scale"></ul>
+            <div class="ips-context" id="ips-context"></div>
+            <button type="button" class="ips-how-btn" id="ips-how-btn" aria-controls="ips-modal">¿Cómo se calcula?</button>
           </div>
           <div class="mss-card ips-comparisons" id="ips-comparisons"></div>
           <div class="mss-card">
             <h3 class="mss-card-title">Composición del índice (puntos aportados — mayor = más presión)</h3>
             <div id="ips-composition"></div>
+          </div>
+          <div class="mss-card ips-sensibilidad-card">
+            <div id="ips-sensibilidad"></div>
           </div>
           <div class="mss-card">
             <h3 class="mss-card-title">Evolución del Termómetro</h3>
@@ -129,7 +136,7 @@
 
         <aside class="mss-takeaway" aria-label="Lectura clave del Termómetro">
           <p class="mss-takeaway-eyebrow">Lectura clave</p>
-          <p class="mss-takeaway-lead">El Termómetro marca 57,3 (nivel Elevado): el sistema chileno está bajo presión alta pero no crítica, con claros focos de deterioro.</p>
+          <p class="mss-takeaway-lead">El Termómetro marca 57 (nivel Elevado): el sistema chileno está bajo presión alta pero no crítica, con claros focos de deterioro.</p>
           <p class="mss-takeaway-body">El índice va de 0 a 100: <strong>mayor = más presión</strong> sobre el sistema. Aquí el componente dominante es <strong>GES retrasadas (19,1 puntos, 33% del total)</strong>, seguido del OOP (15,7) y la brecha de capacidad (10,7). El valor ha caído 5,2 puntos desde 2021 y 1,7 desde dic-2024: la presión baja, no porque se haya resuelto, sino porque las medianas de espera mejoraron. <em>Nota: el informe §B propone una versión académica de 8 componentes con valor 60,7 (ALTO); el dashboard publica la versión simplificada de 5 componentes.</em></p>
         </aside>
       </section>
@@ -260,7 +267,11 @@
             <div class="chart-body"><svg id="chart-m3-3" viewBox="0 0 640 360" role="img" aria-label="Barras: garantías GES retrasadas 2021-2025"></svg></div>
             <p class="chart-foot">Fuente: MINSAL — Glosa 06 IV-2025 (Tabla 1, SIGGES-FONASA). Nota: el filtro de tramo FONASA solo ajusta con el tramo B (64,9% de los retrasos vs 40,9% de la población → factor 1,59); A/C/D sin distribución publicada (limitación declarada).</p>
           </article>
-          <article class="chart-card chart-card-static">
+          <article class="chart-card chart-card-static chart-card-warning">
+            <div class="chart-warning-banner" role="alert">
+              <strong>⚠ No confundir con muertes por espera</strong>
+              <span>El propio MINSAL advierte que estos datos <em>no permiten establecer causalidad</em> entre la lista de espera y la muerte. La mayoría de las causas (cáncer, cardíacas) no se relacionan con la espera.</span>
+            </div>
             <p class="chart-eyebrow">M3 · Listas de espera</p>
             <h3 class="chart-title">¿Cuántas personas fallecen estando en lista de espera?</h3>
             <div class="chart-body"><svg id="chart-m3-4" viewBox="0 0 640 360" role="img" aria-label="Barras: personas fallecidas estando en lista de espera 2023-2025"></svg></div>
@@ -299,6 +310,10 @@
             <p class="chart-eyebrow">M4 · Carga de enfermedad</p>
             <h3 class="chart-title">¿Qué tan extendidas están las crónicas y los factores de riesgo?</h3>
             <div class="chart-body"><svg id="chart-m4-2" viewBox="0 0 640 420" role="img" aria-label="Barras horizontales: prevalencias de enfermedades crónicas y factores de riesgo"></svg></div>
+            <div class="source-legend">
+              <span class="source-badge source-encavi">ENCAVI 2023-24 · autoreporte</span>
+              <span class="source-badge source-ens">ENS 2016-17 · medición directa</span>
+            </div>
             <p class="chart-foot">Fuentes: MINSAL/DESUC — ENCAVI 2023-2024 (presentación 11-08-2025) y MINSAL — ENS 2016-2017 (obesidad e hipertensión, medidas). Nota: definiciones no intercambiables (tabaco y alcohol = consumo último mes; obesidad e HTA = medición, última ENS disponible).</p>
           </article>
           <article class="chart-card chart-card-filterable">
@@ -505,6 +520,68 @@
         </aside>
       </section>
 
+      <!-- ==================== OMISIONES DECLARADAS ==================== -->
+      <section id="omisiones" class="mss-module" aria-labelledby="omisiones-title">
+        <header class="module-head">
+          <p class="eyebrow">Transparencia</p>
+          <h2 id="omisiones-title">¿Qué NO incluye este dashboard?</h2>
+          <span class="source-tag">Datos deliberadamente excluidos por falta de verificación</span>
+        </header>
+        <div class="mss-card omisiones">
+          <p>El monitor no rellena vacíos con supuestos. Estos son los temas que <strong>deliberadamente excluimos</strong> porque no encontramos fuente primaria verificable:</p>
+          <ul class="omisiones-list">
+            <li><strong>Desglose FONASA/fiscal vs. isapre dentro del financiamiento obligatorio</strong> — la API de la OMS solo expone agregados.</li>
+            <li><strong>Densidad de médicos y especialistas por región</strong> — no existe serie oficial vigente posterior a 2010.</li>
+            <li><strong>Brecha de tratamiento en salud mental</strong> — no hay cifra oficial de prevalencia vs. personas en tratamiento.</li>
+            <li><strong>Volumen de compras a privados y telemedicina post-pandemia</strong> — no encontrado en fuentes públicas.</li>
+            <li><strong>Razón de dependencia numérica oficial</strong> — no verificada en esta sesión.</li>
+            <li><strong>% de inmigrantes sin previsión de salud (CASEN 2024)</strong> — el módulo no está publicado con esa desagregación.</li>
+            <li><strong>Serie anual completa de IPC-salud vs. IPC general</strong> — solo puntos sueltos verificados.</li>
+            <li><strong>Deuda de hogares por causas médicas (EFH 2024)</strong> — la categoría "salud" del endeudamiento no fue localizada.</li>
+          </ul>
+          <p class="omisiones-foot">Si tienes una fuente primaria para alguno de estos vacíos, <a href="mailto:mortizcoilla@gmail.com">escríbenos</a> y lo incorporamos.</p>
+        </div>
+      </section>
+
+      <!-- ==================== GLOSARIO ==================== -->
+      <section id="glosario" class="mss-module" aria-labelledby="glosario-title">
+        <header class="module-head">
+          <p class="eyebrow">Referencia</p>
+          <h2 id="glosario-title">Glosario</h2>
+          <span class="source-tag">Términos técnicos en lenguaje simple</span>
+        </header>
+        <div class="mss-card glosario">
+          <dl class="glosario-list">
+            <dt>CNE <span>Consulta Nueva de Especialidad</span></dt>
+            <dd>Primera vez que un paciente ve a un especialista médico (no odontológico) tras ser derivado desde atención primaria. No incluye urgencias ni controles de pacientes ya conocidos.</dd>
+            <dt>IQ <span>Intervención Quirúrgica</span></dt>
+            <dd>Cirugías programadas (electivas) en la red pública. No incluye emergencias.</dd>
+            <dt>GES / AUGE <span>Garantías Explícitas en Salud</span></dt>
+            <dd>Conjunto de problemas de salud que el Estado garantiza atender en plazos máximos. Desde diciembre de 2025 cubre 90 condiciones.</dd>
+            <dt>OOP <span>Gasto de Bolsillo</span></dt>
+            <dd>Dinero que las personas pagan directamente de su propio bolsillo por servicios de salud, sin reembolso. Incluye medicamentos, consultas y exámenes pagados directamente.</dd>
+            <dt>CHE <span>Gasto Corriente en Salud</span></dt>
+            <dd>Todo el dinero que Chile gasta en salud en un año, como porcentaje del PIB. Incluye público y privado, pero excluye inversión en hospitales nuevos.</dd>
+            <dt>PPA <span>Paridad de Poder Adquisitivo</span></dt>
+            <dd>Moneda ficticia que permite comparar el gasto en salud entre países como si todo costara lo mismo. Un dólar PPA compra la misma cantidad de servicios de salud en cualquier país.</dd>
+            <dt>Previsión de salud</dt>
+            <dd>Sistema de salud al que está afiliada una persona: FONASA (público), Isapre (privado), FF.AA. o ninguno.</dd>
+            <dt>Tramo FONASA <span>A / B / C / D</span></dt>
+            <dd>Clasificación de beneficiarios FONASA según ingreso. Los tramos A y B tienen copago cero en la red pública. El 58,8% está en A+B.</dd>
+            <dt>Mortalidad prevenible</dt>
+            <dd>Muertes que se podrían evitar con prevención (vacunas, hábitos saludables, detección temprana).</dd>
+            <dt>Mortalidad tratable</dt>
+            <dd>Muertes que se podrían evitar si el sistema de salud tratara adecuadamente una enfermedad ya diagnosticada.</dd>
+            <dt>Mediana de espera</dt>
+            <dd>Tiempo en días que espera la persona del medio: mitad espera menos, mitad espera más. Es más representativa que el promedio porque no se distorsiona con casos extremos.</dd>
+            <dt>ENCAVI <span>Encuesta Nacional de Calidad de Vida y Salud</span></dt>
+            <dd>Encuesta por teléfono donde la gente reporta cómo se siente y qué enfermedades cree tener. No mide, pregunta.</dd>
+            <dt>ENS <span>Encuesta Nacional de Salud</span></dt>
+            <dd>Encuesta donde técnicos van a la casa, pesan, miden y toman presión. Es medición directa, no autoreporte. La última publicada es de 2016-2017.</dd>
+          </dl>
+        </div>
+      </section>
+
       <!-- ==================== METODOLOGÍA ==================== -->
       <section id="metodologia" class="mss-module" aria-labelledby="metodologia-title">
         <header class="module-head">
@@ -589,5 +666,39 @@
       </footer>
     </main>
   </div>
+
+  <!-- Modal: ¿Cómo se calcula el Termómetro? -->
+  <dialog id="ips-modal" class="ips-modal" aria-labelledby="ips-modal-title">
+    <div class="ips-modal-content">
+      <button type="button" class="ips-modal-close" id="ips-modal-close" aria-label="Cerrar">×</button>
+      <h2 id="ips-modal-title">¿Cómo se calcula el Termómetro de la Salud?</h2>
+      <p>El Termómetro no es una "nota" ni un ranking internacional. Es una <strong>síntesis narrativa</strong>: resume 5 problemas del sistema en un solo número para que cualquier persona pueda entender la presión general.</p>
+      
+      <h3>Los 5 componentes</h3>
+      <ol>
+        <li><strong>Mediana de espera CNE</strong> (25%): días que espera la persona del medio por una consulta nueva de especialidad. Menos es mejor.</li>
+        <li><strong>Garantías GES retrasadas</strong> (20%): personas que esperan más del plazo legal por una garantía de salud. Menos es mejor.</li>
+        <li><strong>Gasto de bolsillo</strong> (20%): % del gasto total en salud que pagan directamente las familias. Menos es mejor.</li>
+        <li><strong>Brecha de capacidad vs OCDE</strong> (20%): cuánto le falta a Chile en enfermeras y camas para llegar al promedio OCDE. Menos es mejor.</li>
+        <li><strong>Multimorbilidad</strong> (15%): % de la población con 2 o más enfermedades crónicas. Menos es mejor.</li>
+      </ol>
+      
+      <h3>¿Por qué 0–100?</h3>
+      <p>Cada componente se normaliza a una escala 0–100 (el peor valor histórico = 100, el mejor = 0). Luego se ponderan y suman. <strong>Mayor número = más presión sobre el sistema.</strong></p>
+      
+      <h3>¿Es objetivo?</h3>
+      <p><strong>No del todo.</strong> La elección de los 5 componentes, sus pesos y sus límites son decisiones del autor. Otro investigador podría elegir otros indicadores u otros pesos y obtener un número distinto. Por eso mostramos el <a href="#ips-sensibilidad">análisis de sensibilidad</a> en la portada: para que veas que el resultado cambia si cambias los pesos.</p>
+      
+      <h3>Limitaciones clave</h3>
+      <ul>
+        <li>Los componentes de capacidad y multimorbilidad se mantienen fijos en la serie histórica (no hay datos anuales).</li>
+        <li>El gasto de bolsillo 2024–2025 repite el último dato disponible (2023).</li>
+        <li>La serie parte en 2021 porque no existe mediana CNE 2019 publicada.</li>
+      </ul>
+      
+      <p class="ips-modal-foot">Para el detalle matemático completo, ver <code>js/core.js</code> y <code>README.md</code>.</p>
+    </div>
+  </dialog>
+
 </body>
 </html>

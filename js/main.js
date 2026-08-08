@@ -45,6 +45,33 @@
     ];
   }
 
+  /* ---------------- Modal Termómetro ---------------- */
+  function initModal() {
+    var btn = document.getElementById('ips-how-btn');
+    var modal = document.getElementById('ips-modal');
+    var closeBtn = document.getElementById('ips-modal-close');
+    if (!btn || !modal) return;
+
+    function open() {
+      modal.setAttribute('open', '');
+      document.body.style.overflow = 'hidden';
+      if (closeBtn) closeBtn.focus();
+    }
+    function close() {
+      modal.removeAttribute('open');
+      document.body.style.overflow = '';
+      btn.focus();
+    }
+    btn.addEventListener('click', open);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', function (ev) {
+      if (ev.target === modal) close();
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && modal.hasAttribute('open')) close();
+    });
+  }
+
   /* ---------------- Drawer móvil ---------------- */
   function initDrawer() {
     var btn = document.getElementById('mss-menu-btn');
@@ -106,6 +133,8 @@
     });
 
     initDrawer();
+    initModal();
+    document.body.classList.add('mss-ready');
     document.body.classList.add('mss-ready');
     console.info('[MSS] Monitor renderizado.');
   }
