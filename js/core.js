@@ -93,166 +93,148 @@
    * TRATAMIENTO TEMPORAL: los componentes "capital" y "multimorbilidad" son
    * estructurales y se mantienen fijos en la serie (sus fuentes no tienen
    * periodicidad anual). El OOP 2024-2025 repite el último dato disponible
-   * (2023, GHED). La serie IPS parte en 2021, primer año con los tres
-   * componentes dinámicos verificados (no existe mediana CNE 2019 publicada).
+   * | C1 | Espera consulta especialista | 226 días | 0→365 días | 15% |
+   * | C2 | Espera cirugía | 251 días | 0→365 días | 10% |
+   * | C3 | Garantías incumplidas | 1,43% retrasadas | 0%→5% | 10% |
+   * | C4 | Dificultad para conseguir atención | 34,2% | 0%→50% | 10% |
+   * | C5 | Gasto de bolsillo (% CHE) | 34,6% | 10%→45% | 15% |
+   * | C6 | Empobrecimiento por salud | 17,4% | 0%→30% | 10% |
+   * | C7 | Déficit de enfermeras | 4,4 vs 9,2/mil | 9,2→2,0 (inv) | 20% |
+   * | C8 | Muertes evitables | 151/100mil | 100→200 | 10% |
+   *
+   * Nombres amigables: cada componente tiene un labelTecnico (para código)
+   * y un labelAmigable (para lectores no especialistas).
    */
   var IPS_SPEC = {
     componentes: [
-      { key: 'cne', label: 'Mediana de espera CNE', w: 0.25, min: 200, max: 550, unidad: 'días' },
-      { key: 'ges', label: 'Garantías GES retrasadas', w: 0.20, min: 50000, max: 80000, unidad: 'casos' },
-      { key: 'oop', label: 'Gasto de bolsillo (% CHE)', w: 0.20, min: 15, max: 40, unidad: '%' },
-      { key: 'capital', label: 'Brecha de capacidad vs OCDE', w: 0.20, min: 0, max: 100, unidad: '% brecha' },
-      { key: 'cronicas', label: 'Multimorbilidad (≥2 crónicas)', w: 0.15, min: 20, max: 50, unidad: '%' }
+      {
+        key: 'cne', label: 'Espera para especialista', labelLargo: '¿Cuánto esperas para ver a un especialista?',
+        w: 0.15, min: 0, max: 365, unidad: 'días',
+        explica: 'Días promedio de espera para primera consulta con un médico especialista.'
+      },
+      {
+        key: 'iq', label: 'Espera para cirugía', labelLargo: '¿Cuánto esperas para una operación?',
+        w: 0.10, min: 0, max: 365, unidad: 'días',
+        explica: 'Días promedio de espera para ser operado en el sistema público.'
+      },
+      {
+        key: 'ges', label: 'Garantías incumplidas', labelLargo: '¿Se cumplen las garantías de atención?',
+        w: 0.10, min: 0, max: 5, unidad: '%',
+        explica: 'Porcentaje de garantías GES/AUGE que el sistema no cumple en el plazo legal.'
+      },
+      {
+        key: 'friccion', label: 'Dificultad para atención', labelLargo: '¿Te cuesta conseguir atención médica?',
+        w: 0.10, min: 0, max: 50, unidad: '%',
+        explica: 'Personas que declaran tener problemas para obtener atención médica cuando la necesitan.'
+      },
+      {
+        key: 'oop', label: 'Gasto de bolsillo', labelLargo: '¿Cuánto pagas tú de tu bolsillo?',
+        w: 0.15, min: 10, max: 45, unidad: '% del gasto total',
+        explica: 'Porcentaje del gasto en salud que las familias pagan directamente (medicamentos, copagos, etc.).'
+      },
+      {
+        key: 'hardship', label: 'Empobrecimiento por salud', labelLargo: '¿La salud te empobrece?',
+        w: 0.10, min: 0, max: 30, unidad: '%',
+        explica: 'Personas que enfrentan dificultades financieras graves por gastos médicos.'
+      },
+      {
+        key: 'enfermeras', label: 'Déficit de enfermeras', labelLargo: '¿Hay suficientes enfermeras?',
+        w: 0.20, min: 2.0, max: 9.2, unidad: 'por 1.000 hab.',
+        invertir: true,
+        explica: 'Brecha entre enfermeras disponibles en Chile y el estándar internacional. Más cerca del estándar = menos presión.'
+      },
+      {
+        key: 'mortalidad', label: 'Muertes evitables', labelLargo: '¿Se mueren personas por causas prevenibles?',
+        w: 0.10, min: 100, max: 200, unidad: 'por 100.000 hab.',
+        explica: 'Muertes por condiciones que el sistema debería poder prevenir o tratar a tiempo.'
+      }
     ]
   };
 
-  function norm(x, min, max) {
-    var v = 100 * (x - min) / (max - min);
+  function norm(x, min, max, invertir) {
+    if (invertir) {
+      // Más cerca del máximo = menos presión (ej. más enfermeras = mejor)
+      var v = 100 * (max - x) / (max - min);
+    } else {
+      var v = 100 * (x - min) / (max - min);
+    }
     return Math.max(0, Math.min(100, v));
   }
 
   /**
-   * Brecha de capacidad vs OCDE, calculada en runtime desde M6.dotacion.
-   * Promedio simple de (1 - chile/ocde) para enfermeras y camas, en %.
-   * Se calcula acá (no en data.js) para que cualquier actualización de M6.dotacion
-   * se refleje automáticamente en el Termómetro.
-   * @returns {number} % brecha en [0, 100]
-   */
-  function gapCapitalFromDotacion() {
-    if (!D || !D.M6 || !Array.isArray(D.M6.dotacion)) return 0;
-    var enf = D.M6.dotacion.find(function (r) { return r.ind === 'Enfermeras'; });
-    var cam = D.M6.dotacion.find(function (r) { return r.ind.indexOf('Camas') === 0; });
-    if (!enf || !cam || !enf.ocde || !cam.ocde) return 0;
-    return ((1 - enf.chile / enf.ocde) + (1 - cam.chile / cam.ocde)) / 2 * 100;
-  }
-
-  /**
-   * Calcula el IPS para un periodo.
-   * @param {string} periodo Clave de MSS.DATA.IPS_INPUTS.dinamicos (ej. 'dic-2025').
+   * Calcula el IPS para un periodo (versión 8 componentes).
+   * @param {string} periodo Clave de MSS.DATA.IPS_INPUTS.dinamicos.
    * @returns {{score:number, nivel:object, contribuciones:Array, periodo:string}}
-   *   contribuciones: [{key,label,w,bruto,norm,puntos,pctDelIndice}]
-   */
-  /**
-   * Calcula el IPS para un periodo.
-   * @param {string} periodo Clave de MSS.DATA.IPS_INPUTS.dinamicos (ej. 'dic-2025').
-   * @param {object} [pesosAlt] Pesos alternativos para análisis de sensibilidad.
-   * @returns {{score:number, nivel:object, contribuciones:Array, periodo:string}}
-   *   contribuciones: [{key,label,w,bruto,norm,puntos,pctDelIndice}]
    */
   function calcularIPS(periodo, pesosAlt) {
     var din = D.IPS_INPUTS.dinamicos[periodo];
     if (!din) throw new Error('Periodo IPS desconocido: ' + periodo);
     var est = D.IPS_INPUTS.estructurales;
+    var gesTotal = D.IPS_INPUTS.gesProcesadasTotal || 5500000;
+
+    // C3: garantías incumplidas como % del total procesado
+    var gesPct = (din.ges / gesTotal) * 100;
+
     var valores = {
-      cne: din.cne, ges: din.ges, oop: din.oop,
-      capital: gapCapitalFromDotacion(), cronicas: est.multimorbilidad
+      cne: din.cne,
+      iq: din.iq,
+      ges: gesPct,
+      friccion: din.friccion,
+      oop: din.oop,
+      hardship: din.hardship,
+      enfermeras: est.enfermerasChile,
+      mortalidad: din.mortalidad
     };
+
+    var score = 0;
     var spec = pesosAlt || IPS_SPEC.componentes;
-    var score = 0;
     var contribuciones = spec.map(function (c) {
-      var nv = norm(valores[c.key], c.min, c.max);
+      var nv = norm(valores[c.key], c.min, c.max, c.invertir);
       var pts = c.w * nv;
       score += pts;
-      return { key: c.key, label: c.label, w: c.w, unidad: c.unidad, bruto: valores[c.key], norm: nv, puntos: pts };
+      return {
+        key: c.key,
+        label: c.label,
+        labelLargo: c.labelLargo || c.label,
+        w: c.w,
+        unidad: c.unidad,
+        bruto: valores[c.key],
+        norm: nv,
+        puntos: pts,
+        explica: c.explica || ''
+      };
     });
     contribuciones.forEach(function (c) { c.pctDelIndice = score > 0 ? 100 * c.puntos / score : 0; });
     return { score: score, nivel: nivelDe(score), contribuciones: contribuciones, periodo: periodo };
+  }
 
   /**
-   * Análisis de sensibilidad: recalcula el IPS con 3 escenarios de pesos alternativos.
+   * Análisis de sensibilidad: recalcula el IPS con escenarios de pesos alternativos.
    * @returns {Array<{escenario:string, pesos:string, score:number, nivel:string}>}
    */
   function sensibilidadIPS() {
     var periodo = 'dic-2025';
     var eq = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: 0.20, min: c.min, max: c.max, unidad: c.unidad };
+      return { key: c.key, label: c.label, w: 0.125, min: c.min, max: c.max, unidad: c.unidad, invertir: c.invertir };
     });
     var dem = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad };
+      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad, invertir: c.invertir };
     });
-    dem[0].w = 0.35; dem[1].w = 0.30; dem[2].w = 0.15; dem[3].w = 0.10; dem[4].w = 0.10;
+    // Énfasis en acceso inmediato: subir esperas y fricción
+    dem[0].w = 0.20; dem[1].w = 0.15; dem[3].w = 0.15; dem[4].w = 0.10; dem[5].w = 0.10;
+    dem[2].w = 0.10; dem[6].w = 0.10; dem[7].w = 0.10;
     var estr = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad };
+      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad, invertir: c.invertir };
     });
-    estr[0].w = 0.15; estr[1].w = 0.10; estr[2].w = 0.15; estr[3].w = 0.35; estr[4].w = 0.25;
+    // Énfasis en estructura: subir enfermeras y mortalidad
+    estr[6].w = 0.30; estr[7].w = 0.15; estr[0].w = 0.10; estr[1].w = 0.10;
+    estr[2].w = 0.10; estr[3].w = 0.10; estr[4].w = 0.10; estr[5].w = 0.05;
     return [
-      { escenario: 'Dashboard (actual)', pesos: 'CNE 25% · GES 20% · OOP 20% · Cap 20% · Crón 15%', score: calcularIPS(periodo).score, nivel: calcularIPS(periodo).nivel.label },
-      { escenario: 'Peso igual (20% c/u)', pesos: 'Todos 20%', score: calcularIPS(periodo, eq).score, nivel: calcularIPS(periodo, eq).nivel.label },
-      { escenario: 'Énfasis en demanda inmediata', pesos: 'CNE 35% · GES 30% · resto 35%', score: calcularIPS(periodo, dem).score, nivel: calcularIPS(periodo, dem).nivel.label },
-      { escenario: 'Énfasis en estructura', pesos: 'Cap 35% · Crón 25% · resto 40%', score: calcularIPS(periodo, estr).score, nivel: calcularIPS(periodo, estr).nivel.label }
+      { escenario: 'Dashboard (actual)', pesos: 'Enf 20% · OOP 15% · CNE 15% · resto 50%', score: calcularIPS(periodo).score, nivel: calcularIPS(periodo).nivel.label },
+      { escenario: 'Peso igual (12,5% c/u)', pesos: 'Todos 12,5%', score: calcularIPS(periodo, eq).score, nivel: calcularIPS(periodo, eq).nivel.label },
+      { escenario: 'Énfasis en acceso inmediato', pesos: 'Esperas + fricción 50% · resto 50%', score: calcularIPS(periodo, dem).score, nivel: calcularIPS(periodo, dem).nivel.label },
+      { escenario: 'Énfasis en estructura', pesos: 'Enf 30% · Mort 15% · resto 55%', score: calcularIPS(periodo, estr).score, nivel: calcularIPS(periodo, estr).nivel.label }
     ];
-  }
-  }
-
-  /**
-   * Análisis de sensibilidad: recalcula el IPS con 3 escenarios de pesos alternativos.
-   * @returns {Array<{escenario:string, pesos:string, score:number, nivel:string}>}
-   */
-  function sensibilidadIPS() {
-    var periodo = 'dic-2025';
-    // Escenario A: ponderación igualitaria
-    var eq = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: 0.20, min: c.min, max: c.max, unidad: c.unidad };
-    });
-    eq[eq.length - 1].w = 0.20; // ajuste para sumar 1.0
-    // Escenario B: más peso a listas de espera + GES (demanda inmediata)
-    var dem = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad };
-    });
-    dem[0].w = 0.35; dem[1].w = 0.30; dem[2].w = 0.15; dem[3].w = 0.10; dem[4].w = 0.10;
-    // Escenario C: más peso a estructura (capital + crónicas)
-    var est = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad };
-    });
-    est[0].w = 0.15; est[1].w = 0.10; est[2].w = 0.15; est[3].w = 0.35; est[4].w = 0.25;
-    return [
-      { escenario: 'Dashboard (actual)', pesos: 'CNE 25% · GES 20% · OOP 20% · Cap 20% · Crón 15%', score: calcularIPS(periodo).score, nivel: calcularIPS(periodo).nivel.label },
-      { escenario: 'Peso igual (20% c/u)', pesos: 'Todos 20%', score: calcularIPS(periodo, eq).score, nivel: calcularIPS(periodo, eq).nivel.label },
-      { escenario: 'Énfasis en demanda inmediata', pesos: 'CNE 35% · GES 30% · resto 35%', score: calcularIPS(periodo, dem).score, nivel: calcularIPS(periodo, dem).nivel.label },
-      { escenario: 'Énfasis en estructura', pesos: 'Cap 35% · Crón 25% · resto 40%', score: calcularIPS(periodo, est).score, nivel: calcularIPS(periodo, est).nivel.label }
-    ];
-  }
-    var din = D.IPS_INPUTS.dinamicos[periodo];
-    if (!din) throw new Error('Periodo IPS desconocido: ' + periodo);
-    var est = D.IPS_INPUTS.estructurales;
-    var valores = {
-      cne: din.cne, ges: din.ges, oop: din.oop,
-      capital: gapCapitalFromDotacion(), cronicas: est.multimorbilidad
-    };
-    var score = 0;
-    var contribuciones = IPS_SPEC.componentes.map(function (c) {
-      var nv = norm(valores[c.key], c.min, c.max);
-      var pts = c.w * nv;
-      score += pts;
-      return { key: c.key, label: c.label, w: c.w, unidad: c.unidad, bruto: valores[c.key], norm: nv, puntos: pts };
-    });
-    contribuciones.forEach(function (c) { c.pctDelIndice = score > 0 ? 100 * c.puntos / score : 0; });
-    return { score: score, nivel: nivelDe(score), contribuciones: contribuciones, periodo: periodo };
-
-  /**
-   * Análisis de sensibilidad: recalcula el IPS con 3 escenarios de pesos alternativos.
-   * @returns {Array<{escenario:string, pesos:string, score:number, nivel:string}>}
-   */
-  function sensibilidadIPS() {
-    var periodo = 'dic-2025';
-    var eq = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: 0.20, min: c.min, max: c.max, unidad: c.unidad };
-    });
-    var dem = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad };
-    });
-    dem[0].w = 0.35; dem[1].w = 0.30; dem[2].w = 0.15; dem[3].w = 0.10; dem[4].w = 0.10;
-    var estr = IPS_SPEC.componentes.map(function (c) {
-      return { key: c.key, label: c.label, w: c.w, min: c.min, max: c.max, unidad: c.unidad };
-    });
-    estr[0].w = 0.15; estr[1].w = 0.10; estr[2].w = 0.15; estr[3].w = 0.35; estr[4].w = 0.25;
-    return [
-      { escenario: 'Dashboard (actual)', pesos: 'CNE 25% · GES 20% · OOP 20% · Cap 20% · Crón 15%', score: calcularIPS(periodo).score, nivel: calcularIPS(periodo).nivel.label },
-      { escenario: 'Peso igual (20% c/u)', pesos: 'Todos 20%', score: calcularIPS(periodo, eq).score, nivel: calcularIPS(periodo, eq).nivel.label },
-      { escenario: 'Énfasis en demanda inmediata', pesos: 'CNE 35% · GES 30% · resto 35%', score: calcularIPS(periodo, dem).score, nivel: calcularIPS(periodo, dem).nivel.label },
-      { escenario: 'Énfasis en estructura', pesos: 'Cap 35% · Crón 25% · resto 40%', score: calcularIPS(periodo, estr).score, nivel: calcularIPS(periodo, estr).nivel.label }
-    ];
-  }
   }
 
   /**
@@ -661,13 +643,7 @@
     var anterior = calcularIPS('dic-2024');
     var inicial = serie[0];
 
-    // Número grande + nivel (REDONDEADO A ENTERO para evitar falsa precisión)
-    var num = document.getElementById('ips-number');
-    num.textContent = Math.round(actual.score);
-    num.style.color = actual.nivel.color;
-    var lvl = document.getElementById('ips-level');
-    lvl.textContent = 'Nivel ' + actual.nivel.label;
-    lvl.style.background = actual.nivel.color;
+    // Número grande + nivel
     var num = document.getElementById('ips-number');
     num.textContent = Math.round(actual.score);
     num.style.color = actual.nivel.color;
@@ -675,7 +651,7 @@
     lvl.textContent = 'Nivel ' + actual.nivel.label;
     lvl.style.background = actual.nivel.color;
 
-    // Barra de zonas con marcador (DOM, no svg, para nitidez)
+    // Barra de zonas con marcador
     var bar = document.getElementById('ips-bar');
     bar.innerHTML = '';
     NIVELES.forEach(function (lv, i) {
@@ -693,18 +669,18 @@
     marker.setAttribute('aria-label', 'Termómetro actual ' + fmtDec(actual.score, 1));
     bar.appendChild(marker);
 
-    // Contexto metodológico visible (inmunización contra mala interpretación)
+    // Contexto metodológico
     var ctx = document.getElementById('ips-context');
     if (ctx) {
-      ctx.innerHTML = '<p class="ips-context-line">Este número resume <strong>5 presiones del sistema</strong> con ponderaciones elegidas por el autor. Cambiar los pesos cambiaría el resultado. No es una "nota escolar" de salud.</p>';
+      ctx.innerHTML = '<p class="ips-context-line">Este número resume <strong>8 presiones del sistema</strong> — desde cuánto esperas para un especialista hasta si la salud te empobrece. Las ponderaciones son decisiones del autor; cambiarlas cambiaría el resultado. No es una "nota escolar" de salud.</p>';
     }
 
-    // Análisis de sensibilidad (mínimo: 3 escenarios visibles)
+    // Análisis de sensibilidad
     var sensEl = document.getElementById('ips-sensibilidad');
     if (sensEl) {
       var sens = sensibilidadIPS();
       var sensHtml = '<h3 class="mss-card-title">¿Cambia mucho si usamos otros pesos?</h3>' +
-        '<p class="ips-sens-intro">El Termómetro depende de cómo se ponderan los 5 componentes. Aquí el mismo dato con 4 combinaciones distintas:</p>' +
+        '<p class="ips-sens-intro">El Termómetro depende de cómo se ponderan los 8 componentes. Aquí el mismo dato con 4 combinaciones distintas:</p>' +
         '<table class="ips-sens-table"><thead><tr><th>Escenario</th><th>Pesos</th><th>Resultado</th><th>Nivel</th></tr></thead><tbody>';
       sens.forEach(function (s) {
         var clr = nivelDe(s.score).color;
@@ -713,12 +689,11 @@
           '<td><span class="ips-sens-badge" style="background:' + clr + '">' + s.nivel + '</span></td></tr>';
       });
       sensHtml += '</tbody></table>' +
-        '<p class="ips-sens-foot">Ninguna combinación es "la correcta". El dashboard usa la primera porque prioriza la demanda inmediata (esperas + garantías). ' +
-        'La versión académica del informe usa 8 componentes y da 61 (ALTO).</p>';
+        '<p class="ips-sens-foot">Ninguna combinación es "la correcta". El dashboard usa la primera porque prioriza la capacidad de enfermería (20%) y la demanda inmediata (esperas + gasto de bolsillo). El informe académico valida esta estructura de 8 componentes.</p>';
       sensEl.innerHTML = sensHtml;
     }
 
-    // Escala textual bajo la barra
+    // Escala textual
     var scale = document.getElementById('ips-scale');
     scale.innerHTML = NIVELES.map(function (lv, i) {
       var hi = i < NIVELES.length - 1 ? NIVELES[i + 1].min - 1 : 100;
@@ -726,104 +701,40 @@
         lv.label + ' <span class="rng">' + (i === 0 ? '<' + NIVELES[1].min : (i === NIVELES.length - 1 ? '≥' + lv.min : lv.min + '–' + hi)) + '</span></li>';
     }).join('');
 
-    // Contexto metodológico visible (inmunización contra mala interpretación)
-    var ctx = document.getElementById('ips-context');
-    if (ctx) {
-      ctx.innerHTML = '<p class="ips-context-line">Este número resume <strong>5 presiones del sistema</strong> con ponderaciones elegidas por el autor. ' +
-        'Cambiar los pesos cambiaría el resultado. No es una "nota escolar" de salud.</p>';
+    // Modal: hero score + composición visual
+    var modalScore = document.getElementById('ips-modal-score');
+    var modalLevel = document.getElementById('ips-modal-level');
+    if (modalScore) {
+      modalScore.textContent = Math.round(actual.score);
     }
-
-    // Análisis de sensibilidad (mínimo: 3 escenarios visibles)
-    var sensEl = document.getElementById('ips-sensibilidad');
-    if (sensEl) {
-      var sens = sensibilidadIPS();
-      var sensHtml = '<h3 class="mss-card-title">¿Cambia mucho si usamos otros pesos?</h3>' +
-        '<p class="ips-sens-intro">El Termómetro depende de cómo se ponderan los 5 componentes. Aquí el mismo dato con 4 combinaciones distintas:</p>' +
-        '<table class="ips-sens-table"><thead><tr><th>Escenario</th><th>Pesos</th><th>Resultado</th><th>Nivel</th></tr></thead><tbody>';
-      sens.forEach(function (s) {
-        var clr = nivelDe(s.score).color;
-        sensHtml += '<tr><td>' + s.escenario + '</td><td>' + s.pesos + '</td>' +
-          '<td style="font-weight:700;color:' + clr + '">' + Math.round(s.score) + '</td>' +
-          '<td><span class="ips-sens-badge" style="background:' + clr + '">' + s.nivel + '</span></td></tr>';
-      });
-      sensHtml += '</tbody></table>' +
-        '<p class="ips-sens-foot">Ninguna combinación es "la correcta". El dashboard usa la primera porque prioriza la demanda inmediata (esperas + garantías). ' +
-        'La versión académica del informe usa 8 componentes y da 61 (ALTO).</p>';
-      sensEl.innerHTML = sensHtml;
+    if (modalLevel) {
+      modalLevel.textContent = 'Nivel ' + actual.nivel.label;
+      modalLevel.style.background = actual.nivel.color;
     }
-    var scale = document.getElementById('ips-scale');
-    scale.innerHTML = NIVELES.map(function (lv, i) {
-      var hi = i < NIVELES.length - 1 ? NIVELES[i + 1].min - 1 : 100;
-      return '<li><span class="dot" style="background:' + lv.color + '"></span>' +
-        lv.label + ' <span class="rng">' + (i === 0 ? '<' + NIVELES[1].min : (i === NIVELES.length - 1 ? '≥' + lv.min : lv.min + '–' + hi)) + '</span></li>';
-    }).join('');
-
-    // 3 comparaciones
-    var dominante = actual.contribuciones.slice().sort(function (a, b) { return b.puntos - a.puntos; })[0];
-    var dAnterior = actual.score - anterior.score;
-    var dInicial = actual.score - inicial.score;
-    var comp = document.getElementById('ips-comparisons');
-    comp.innerHTML =
-      '<h3 class="mss-card-title">Tres lecturas del índice</h3>' +
-      '<ul class="ips-comp-list">' +
-      '<li><span class="ips-comp-num ' + (dInicial <= 0 ? 'down' : 'up') + '">' + (dInicial >= 0 ? '+' : '−') + fmtDec(Math.abs(dInicial), 1) + '</span>' +
-      '<span class="ips-comp-txt">puntos vs. inicio de la serie (<strong>' + inicial.periodo + '</strong>, ' + fmtDec(inicial.score, 1) + '). La serie parte en 2021: no existe mediana de espera CNE verificada para 2019.</span></li>' +
-      '<li><span class="ips-comp-num ' + (dAnterior <= 0 ? 'down' : 'up') + '">' + (dAnterior >= 0 ? '+' : '−') + fmtDec(Math.abs(dAnterior), 1) + '</span>' +
-      '<span class="ips-comp-txt">puntos vs. periodo anterior (<strong>dic-2024</strong>, ' + fmtDec(anterior.score, 1) + '): bajan las medianas de espera y suben las garantías GES retrasadas.</span></li>' +
-      '<li><span class="ips-comp-num neutral">' + fmtDec(dominante.pctDelIndice, 0) + '%</span>' +
-      '<span class="ips-comp-txt">del puntaje corresponde a <strong>' + dominante.label.toLowerCase() + '</strong> (' + fmtMiles(dominante.bruto) + ' ' + dominante.unidad + '): el componente de mayor aporte al Termómetro.</span></li>' +
-      '</ul>';
-
-    // Composición (barras de contribución)
-    var compEl = document.getElementById('ips-composition');
-    compEl.innerHTML = '';
-    var wrap = d3.select(compEl);
-    actual.contribuciones.forEach(function (c) {
-      var row = wrap.append('div').attr('class', 'ips-comp-row');
-      row.append('div').attr('class', 'ips-comp-head')
-        .html('<span>' + c.label + ' <em>(w = ' + fmtDec(c.w, 2) + ')</em></span><span>' + fmtDec(c.puntos, 1) + ' pts</span>');
-      var track = row.append('div').attr('class', 'ips-comp-track');
-      track.append('div').attr('class', 'ips-comp-fill')
-        .style('width', c.norm + '%')
-        .style('background', 'linear-gradient(90deg,' + PALETTE.blue + ',' + PALETTE.blueDark + ')');
-      row.append('div').attr('class', 'ips-comp-sub')
-        .text('Valor: ' + fmtMiles(c.bruto) + (c.unidad.indexOf('%') === 0 ? c.unidad : ' ' + c.unidad) +
-          ' · normalizado ' + fmtDec(c.norm, 0) + '/100');
-    });
-
-    // Mini serie histórica del IPS (con etiqueta de valor en cada punto)
-    var miniEl = document.getElementById('ips-serie');
-    if (miniEl) {
-      lines('ips-serie-svg', [{
-        label: 'IPS', color: PALETTE.blueDark,
-        puntos: serie.map(function (p) { return { x: p.periodo, v: Math.round(p.score * 10) / 10 }; })
-      }], {
-        max: 100, min: 0, unidad: ' pts', yLabel: 'Termómetro (0 = baja presión, 100 = alta)',
-        pointLabels: 'all', fmtVal: function (v) { return fmtDec(v, 1); },
-        margins: { top: 20, right: 14, bottom: 30, left: 36 }
+    var modalComp = document.getElementById('ips-modal-composition');
+    if (modalComp) {
+      modalComp.innerHTML = '';
+      var sorted = actual.contribuciones.slice().sort(function (a, b) { return b.puntos - a.puntos; });
+      sorted.forEach(function (c) {
+        var row = document.createElement('div');
+        row.className = 'ips-mc-row';
+        var pct = Math.round(c.norm);
+        row.innerHTML =
+          '<div class="ips-mc-head">' +
+            '<span><strong>' + c.labelLargo + '</strong> <em>(peso ' + Math.round(c.w * 100) + '%)</em></span>' +
+            '<span class="pts">' + fmtDec(c.puntos, 1) + ' pts</span>' +
+          '</div>' +
+          '<div class="ips-mc-track">' +
+            '<div class="ips-mc-fill" style="width:' + pct + '%"></div>' +
+          '</div>' +
+          '<div class="ips-mc-sub">Dato: ' + fmtMiles(c.bruto) + ' ' + c.unidad + ' · presión ' + pct + '/100</div>';
+        modalComp.appendChild(row);
       });
     }
   }
 
   /* API pública */
   window.MSS.core = {
-    PALETTE: PALETTE,
-    NIVELES: NIVELES,
-    IPS_SPEC: IPS_SPEC,
-    nivelDe: nivelDe,
-    calcularIPS: calcularIPS,
-    sensibilidadIPS: sensibilidadIPS,
-    sensibilidadIPS: sensibilidadIPS,
-    serieIPS: serieIPS,
-    fmtMiles: fmtMiles,
-    fmtDec: fmtDec,
-    tooltip: tooltip, tipShow: tipShow, tipHide: tipHide,
-    stage: stage, legend: legend, gridY: gridY, axisStyle: axisStyle,
-    yTitle: yTitle, xTitle: xTitle, refBadge: refBadge,
-    barV: barV, barH: barH, groupedBars: groupedBars, stackedBars: stackedBars,
-    lines: lines, donut: donut,
-    renderPortada: renderPortada
-  };
     PALETTE: PALETTE,
     NIVELES: NIVELES,
     IPS_SPEC: IPS_SPEC,

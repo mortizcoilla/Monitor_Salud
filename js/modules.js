@@ -199,13 +199,12 @@
       });
 
     // M4.2 Prevalencias de crónicas y factores de riesgo
-    // Distingue visualmente ENCAVI (autoreporte) vs ENS (medición directa)
     c.barH('chart-m4-2',
       d.cronicas.map(function (r) { return { k: r.ind, v: r.v, fuente: r.f }; }),
       {
         colorFn: function (dd) {
-          if (dd.fuente.indexOf('ENS') !== -1) return p.amber;   // medición directa
-          if (dd.fuente.indexOf('ENCAVI') !== -1) return p.blue; // autoreporte
+          if (dd.fuente.indexOf('ENS') !== -1) return p.amber;
+          if (dd.fuente.indexOf('ENCAVI') !== -1) return p.blue;
           return p.muted;
         },
         unidad: '%', max: 70, xLabel: '% de la población',

@@ -363,19 +363,21 @@
      * ------------------------------------------------------------------ */
     IPS_INPUTS: {
       periodos: ['2021', 'dic-2023', 'dic-2024', 'dic-2025'],
+      // Total estimado de garantías GES procesadas anualmente (~constante)
+      gesProcesadasTotal: 5500000,
       // Componentes dinámicos por periodo
       dinamicos: {
-        '2021':    { cne: 547, ges: 54333, oop: 32.63 },
-        'dic-2023': { cne: 240, ges: 70440, oop: 34.59 },
-        'dic-2024': { cne: 263, ges: 77107, oop: 34.59 },
-        'dic-2025': { cne: 226, ges: 78594, oop: 34.59 }
+        '2021':    { cne: 547, iq: 661, ges: 54333, friccion: 34.2, oop: 32.63, hardship: 17.4, mortalidad: 151 },
+        'dic-2023': { cne: 240, iq: 305, ges: 70440, friccion: 34.2, oop: 34.59, hardship: 17.4, mortalidad: 151 },
+        'dic-2024': { cne: 263, iq: 294, ges: 77107, friccion: 34.2, oop: 34.59, hardship: 17.4, mortalidad: 151 },
+        'dic-2025': { cne: 226, iq: 251, ges: 78594, friccion: 34.2, oop: 34.59, hardship: 17.4, mortalidad: 151 }
       },
       // Componentes estructurales (constantes en la serie)
       estructurales: {
-        // gapCapital NO se hardcodea: se calcula en runtime desde M6.dotacion
-        // en core.js (gapCapitalFromDotacion) para evitar desincronización.
-        multimorbilidad: 40.1
+        enfermerasChile: 4.4,
+        enfermerasOcde: 9.2
       }
+
     }
   };
 })();
